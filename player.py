@@ -4,12 +4,17 @@ import pygame as pg
 from pygame.math import Vector2
 from pacman import *
 from setting import *
-import math
+from pygame.sprite import Group
+from pygame.sprite import Sprite
+from pygame.sysfont import SysFont
+from pygame import mixer
+import SheetSprites
 
 vec: Type[Vector2] = pg.math.Vector2
 
 
 class Player:
+
     def __init__(self, screen, pos):
         self.screen = screen
         self.grid_pos = pos
@@ -21,6 +26,10 @@ class Player:
         self.current_score = 0
         self.player_life = 3
         self.life()
+        self.pac_man = SheetSprites.sheetSprites('images/Pacman.png')
+
+
+        #self.pac = [self.pac_man.image_at(0, 45)]
         # what if we use this way
 
     # w = pygame.sprite.Sprite()
@@ -80,6 +89,7 @@ class Player:
         return False
 
     def eat(self):
+        pg.mixer.Sound.stop(self.screen.eat_sound)
         pg.mixer.Sound.play(self.screen.eat_sound)
         self.screen.coins.remove(self.grid_pos)
 
@@ -128,12 +138,14 @@ class Player:
 
     def frontplayer(self):
         if self.way_to_move:
-            self.pix_pos += self.direction
-
+            self.pix_pos += (3*self.direction)
+            if self.pix_pos.y == 28:
+                self.pix_pos -= (3*self.direction)
 
     def life(self):
         if self.player_life == 3:
-            pg.draw.circle(self.screen.screen, YELLOW, (16, 560), self.screen.cell_width // 2 - 2)
+            #self.screen.screen.blit(self.pac, (16, 560))
+            pg.draw.circle(self.screen.screen, YELLOW, (16, 156), self.screen.cell_width // 2 - 2)
             pg.draw.circle(self.screen.screen, YELLOW, (36, 560), self.screen.cell_width // 2 - 2)
             pg.draw.circle(self.screen.screen, YELLOW, (56, 560), self.screen.cell_width // 2 - 2)
         else:
@@ -143,3 +155,7 @@ class Player:
             else:
                 if self.player_life == 1:
                     pg.draw.circle(self.screen.screen, YELLOW, (16, 560), self.screen.cell_width // 2 - 2)
+
+    def reset(self):
+        self.grid_pos = PLAYER_START
+        self.pix_pos = self.get_pix()

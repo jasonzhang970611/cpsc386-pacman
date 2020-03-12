@@ -68,11 +68,13 @@ class Game:
         self.gate = []
         self.coins = []
         self.super = []
+        self.ghosts = []
 
         self.load_highscour()
         # button
         self.playstation = Button(RED, 160, HEIGHT // 2 + 120, 100, 40, 'Play')
         self.scoring = Button(RED, 160, HEIGHT // 2 + 200, 100, 40, 'Height Score')
+        self.menu = Button(RED, 160, HEIGHT // 2 + 200, 100, 40, 'MENU')
         # teleplot wall
         self.a = []
         self.b = []
@@ -82,20 +84,33 @@ class Game:
 
         self.player = Player(self, PLAYER_START)
         self.front_player = Player(self, fpos)
+
+        # self.make_ghosts()
+
         self.eat_sound = pg.mixer.Sound("sounds/fruit_eat.wav")
         self.eat_sound2 = pg.mixer.Sound("sounds/power_eat.wav")
         self.start_sound = pg.mixer.Sound('sounds/game_start.wav')
-        self.background_music = pg.mixer.Sound('sounds/background.wav')
+        pg.mixer.music.load('sounds/background.wav')
         self.load()
-        self.channle = 0
+        self.channel = 0
         self.playmusic()
         # Ghosts
-        self.Ghosts = Ghosts(self, color=None)
+        # self.Ghosts = Ghosts(self, color=None)
+
+        # cyanghost = Ghosts(screen, "cyan")
+        # orangeghost = Ghosts(screen, "orange")
+        # pinkghost = Ghosts(screen, "pink")
+        # redghost = Ghosts(screen, "red")
+
+        # Ghosts.add(cyanghost)
+        # Ghosts.add(orangeghost)
+        # Ghosts.add(pinkghost)
+        # Ghosts.add(redghost)
 
     def playmusic(self):
-        if self.channle == 0:
+        if self.channel == 0:
             pg.mixer.Sound.play(self.start_sound)
-        if self.channle == 1:
+        if self.channel == 1:
             pg.mixer.music.play(-1)
 
     def run(self):
@@ -114,6 +129,10 @@ class Game:
                 self.score_events()
                 self.score_update()
                 self.score_draw()
+            if self.game == 'over':
+                self.over_events()
+                self.over_update()
+                self.over_draw()
                 pass
             self.clock.tick(FPS)
         pg.quit()
@@ -147,6 +166,9 @@ class Game:
         print(self.coins)
         print(self.super)
 
+    def make_ghosts(self):
+        self.ghosts.append(Ghosts(self, 'red'))
+
     def load_highscour(self):
         with open(path.join(self.dir, HS_file), 'w') as f:
             try:
@@ -173,6 +195,15 @@ class Game:
             self.screen.blit(self.power_coin, ((supers.x * self.cell_width), (supers.y * self.cell_height + 48),
                                                self.cell_width, self.cell_height))
 
+    # game over.
+    def remove_life(self):
+        self.player.player_life -= 1
+        if self.player.player_life == 0:
+            self.game == 'over'
+        else:
+            self.player.reset()
+            self.ghosts.reset()
+
     #                                                     front page                                       #
 
     def front_events(self):
@@ -184,7 +215,9 @@ class Game:
             if event.type == pg.MOUSEBUTTONDOWN:
                 if self.playstation.isOver(pos):
                     self.game = 'game'
-                    self.channle +=1
+                    pg.mixer.Sound.stop(self.start_sound)
+                    pg.mixer.music.play(-1)
+                    self.channel += 1
                 if self.scoring.isOver(pos):
                     self.game = 'score'
 
@@ -208,7 +241,7 @@ class Game:
             # Key movement
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_LEFT:
-                    self.player.move(vec(-1, 0))
+                    self.player.move(right)
                 if event.key == pg.K_RIGHT:
                     self.player.move(vec(1, 0))
                 if event.key == pg.K_UP:
@@ -219,13 +252,15 @@ class Game:
     def game_update(self):
         self.player.update()
 
-    #        self.Ghosts.update()
+        #self.Ghosts.update()
+        #for Ghost in self.ghosts:
+            #if Ghost.rect == self.player.grid_pos:
+                #self.remove_life()
 
     def game_draw(self):
         self.screen.fill(BLACK)
         self.screen.blit(self.background, (0, 48))
         self.draw_coin()
-        # self.draw_grid()
         out_text('BEST SCORE : {}'.format(self.highborn), self.screen, [2, 0], 14, WHITE, start_font)
         out_text('CURRENT SCORE: {}'.format(self.player.current_score), self.screen, [200, 0], 14, WHITE, start_font)
         if self.player.current_score > self.highborn:
@@ -235,13 +270,39 @@ class Game:
         pg.display.update()
 
     def score_events(self):
-        pass
+        for event in pg.event.get():
+            pos = pg.mouse.get_pos()
+            if event.type == pg.QUIT:
+                self.running = False
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if self.menu.isOver(pos):
+                    self.game = 'front'
 
     def score_update(self):
         pass
 
     def score_draw(self):
+        self.screen.fill(BLACK)
+        out_text('BEST SCORE : {}'.format(self.highborn), self.screen, [100, HEIGHT / 2], 25, WHITE, start_font)
+        self.menu.draw(self.screen, (0, 0, 0))
+        pg.display.update()
+
+    def over_events(self):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                self.running = False
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    self.game = 'game'
+
+    def over_update(self):
         pass
+
+    def over_draw(self):
+        self.screen.fill(BLACK)
+        out_text('Game Over!', self.screen, [80, 200],30, YELLOW,start_font)
+        out_text('SPACE TO PLAY AGAIN', self.screen, [80, HEIGHT / 2], 20, WHITE, start_font)
+        pg.display.update()
 
 
 def main():

@@ -26,6 +26,7 @@ class Ghosts(Sprite):
         self.screen = screen
         self.height = 35
         self.width = 35
+        self.reset()
 
         Cyan_sheet = SheetSprites.sheetSprites('images/Cyan.png')
         Yellow_sheet = SheetSprites.sheetSprites('images/Yellow.png')
@@ -84,12 +85,12 @@ class Ghosts(Sprite):
             self.down_image = [Pink_sheet.image_at((0, 38, 32, 38)),
                                Pink_sheet.image_at((0, 152, 32, 38))]
 
-        #self.rect = pygame.transform.scale(self.up_image[0], (self.height, self.width)).get_rect()
-        #self.rect.x, self.rect.y = 330, 315
-        #self.rect.left -= self.rect.width
-        #self.rect.top -= self.rect.height
-        #self.image = [None, None]
-        #self.image = self.up_image
+        self.rect = pygame.transform.scale(self.up_image[0], (self.height, self.width)).get_rect()
+        self.rect.x, self.rect.y = 330, 315
+        self.rect.left -= self.rect.width
+        self.rect.top -= self.rect.height
+        self.image = [None, None]
+        self.image = self.up_image
 
         self.moving_up = True
         self.moving_down = False
@@ -131,21 +132,21 @@ class Ghosts(Sprite):
     def blitghosts(self):
         if self.DEAD:
             if self.moving_left:
-                self.screen.blit(self.eyes[2], self.rect)
+                self.screen.screen.blit(self.eyes[2], self.rect)
             elif self.moving_right:
-                self.screen.blit(self.eyes[3], self.rect)
+                self.screen.screen.blit(self.eyes[3], self.rect)
             elif self.moving_up:
-                self.screen.blit(self.eyes[1], self.rect)
+                self.screen.screen.blit(self.eyes[1], self.rect)
             elif self.moving_down:
-                self.screen.blit(self.eyes[0], self.rect)
+                self.screen.screen.blit(self.eyes[0], self.rect)
         elif self.afraid:
             if self.frames <= 720:
                 if pygame.time.get_ticks() % 200 <= 50:
-                    self.screen.blit(self.Scared[2], self.rect)
+                    self.screen.screen.blit(self.Scared[2], self.rect)
                 elif pygame.time.get_ticks() % 200 <= 100:
-                    self.screen.blit(self.Scared[3], self.rect)
+                    self.screen.screen.blit(self.Scared[3], self.rect)
                 elif pygame.time.get_ticks() % 200 <= 150:
-                    self.screen.blit(self.Scared[2], self.rect)
+                    self.screen.screen.blit(self.Scared[2], self.rect)
                 else:
                     self.screen.blit(self.Scared[3], self.rect)
             elif self.frames <= 960:
@@ -184,3 +185,6 @@ class Ghosts(Sprite):
 
         self.afraid = False
         self.DEAD = False
+
+    def reset(self):
+        pass

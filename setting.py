@@ -1,6 +1,7 @@
 import pygame
 from pygame.math import Vector2 as vec
 from Ghosts import Ghosts
+from pygame.sprite import Group
 pygame.init()
 # screen
 WIDTH, HEIGHT = 448, 576
@@ -42,12 +43,6 @@ HS_file = "scorefile.txt"
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 # Ghosts
-cyanghost = Ghosts(screen, "cyan")
-orangeghost = Ghosts(screen, "orange")
-pinkghost = Ghosts(screen, "pink")
-redghost = Ghosts(screen, "red")
 
-Ghosts.add(cyanghost)
-Ghosts.add(orangeghost)
-Ghosts.add(pinkghost)
-Ghosts.add(redghost)
+
+right = vec(-1, 0)
